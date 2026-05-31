@@ -8,7 +8,19 @@
 # Notes    : Requires host usbmuxd + Docker USB passthrough
 ################################################################################
 
-sudo usbmuxd -fvv &
+# sudo usbmuxd -fvv &
+# Only show connection events, hide noise
+sudo usbmuxd -fvv 2>&1 | grep --line-buffered -v "^\s*$" | \
+  grep --line-buffered -E "accepted|closed|device|error|pair|trust" &
+
+# ### (OR) Send logs to file, tail it in a separate terminal ###
+# sudo usbmuxd -fvv 2>&1 | tee ~/usbmuxd.log &
+
+# In another terminal, watch with color highlights
+# tail -f ~/usbmuxd.log | grep --color=always -E \
+#   "error|Error|device|Device|pair|trust|accept|close|WARN"
+# ### /// Send logs to file, tail it in a separate terminal ###
+
 
 sudo docker run -it --privileged \
   -v /var/run/usbmuxd:/var/run/usbmuxd \
